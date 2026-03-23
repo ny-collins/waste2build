@@ -1,3 +1,14 @@
+# Dependency Directories
 node_modules/
 server/node_modules/
+
+# Production Builds
 dist/
+
+# Environmental Secrets
+.env
+
+# Runtime Data & Database State
+server/database.sqlite
+server/uploads/*
+!server/uploads/.gitkeep

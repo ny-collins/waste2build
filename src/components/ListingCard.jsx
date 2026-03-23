@@ -1,13 +1,12 @@
 import styled from "styled-components";
-import { FiMapPin, FiBox, FiClock, FiTag } from "react-icons/fi";
-import { Link } from "react-router-dom";
+import { FiMapPin, FiBox, FiClock, FiTag, FiImage } from "react-icons/fi";
 
 const Card = styled.div`
   background: white;
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radius.lg};
   overflow: hidden;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition: box-shadow ${({ theme }) => theme.transitions.normal}, transform ${({ theme }) => theme.transitions.normal};
   display: flex;
   flex-direction: column;
 
@@ -17,16 +16,46 @@ const Card = styled.div`
   }
 `;
 
-const ImagePlaceholder = styled.div`
+const CoverWrap = styled.div`
   height: 180px;
+  width: 100%;
   background: #e2e8f0;
-  display: grid;
-  place-items: center;
+  position: relative;
+  overflow: hidden;
+`;
+
+const CoverImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+  
+  ${Card}:hover & {
+    transform: scale(1.05); /* Subtle zoom effect on card hover */
+  }
+`;
+
+const Placeholder = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   color: ${({ theme }) => theme.colors.muted};
-  font-weight: 700;
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  gap: 8px;
+  
+  svg {
+    font-size: 24px;
+    opacity: 0.5;
+  }
+  
+  span {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
 `;
 
 const Body = styled.div`
@@ -44,12 +73,12 @@ const MetaRow = styled.div`
 `;
 
 const CategoryBadge = styled.span`
-  background: #eafff1;
-  color: ${({ theme }) => theme.colors.primaryDark};
+  background: ${({ theme }) => theme.colors.tags.blue};
+  color: #1e40af;
   padding: 4px 10px;
-  border-radius: 20px;
+  border-radius: ${({ theme }) => theme.radius.pill};
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 800;
   text-transform: uppercase;
   display: flex;
   align-items: center;
@@ -58,11 +87,11 @@ const CategoryBadge = styled.span`
 
 const StatusBadge = styled.span`
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 800;
   text-transform: uppercase;
   padding: 4px 10px;
-  border-radius: 20px;
-  background: ${({ $status }) => ($status === "available" ? "#f0fdf4" : "#fef3c7")};
+  border-radius: ${({ theme }) => theme.radius.pill};
+  background: ${({ $status, theme }) => ($status === "available" ? theme.colors.status.available : theme.colors.status.pending)};
   color: ${({ $status }) => ($status === "available" ? "#166534" : "#92400e")};
 `;
 
@@ -125,12 +154,23 @@ const ActionWrapper = styled.div`
 `;
 
 export default function ListingCard({ listing, actions }) {
-  // Aggregate computation for standard UI metric
   const totalValue = (listing.weight_kg * listing.price_per_kg).toLocaleString();
+  
+  const hasImages = listing.images && listing.images.length > 0;
 
   return (
     <Card>
-      <ImagePlaceholder>Material Image</ImagePlaceholder>
+      <CoverWrap>
+        {hasImages ? (
+          <CoverImage src={listing.images[0]} alt={listing.title} loading="lazy" />
+        ) : (
+          <Placeholder>
+            <FiImage />
+            <span>No Image</span>
+          </Placeholder>
+        )}
+      </CoverWrap>
+      
       <Body>
         <MetaRow>
           <CategoryBadge><FiBox /> {listing.category}</CategoryBadge>

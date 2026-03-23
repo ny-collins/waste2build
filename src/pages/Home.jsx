@@ -7,7 +7,6 @@ import {
 } from "react-icons/fi";
 import { Link } from "react-router-dom";
 
-/* --------------------------- Hero Section --------------------------- */
 const Hero = styled.section`
   background: linear-gradient(180deg, #eafff1 0%, #f7fafc 55%);
   padding: 60px 0 80px;
@@ -149,7 +148,6 @@ const OutlineBtn = styled(Link)`
   }
 `;
 
-/* --------------------------- How It Works Section --------------------------- */
 const Section = styled.section`
   padding: 80px 0;
   background: #fff;
@@ -215,7 +213,6 @@ const StepIcon = styled.div`
   color: ${({ theme }) => theme.colors.primary};
 `;
 
-/* --------------------------- Impact Section (SDG 15) --------------------------- */
 const ImpactSection = styled.section`
   padding: 80px 0;
   background: ${({ theme }) => theme.colors.navy};
@@ -287,7 +284,6 @@ const StatCard = styled.div`
   }
 `;
 
-/* --------------------------- Terminal CTA Section --------------------------- */
 const CTASection = styled.section`
   padding: 80px 0 40px;
   text-align: center;
@@ -315,7 +311,6 @@ const CTACard = styled.div`
   }
 `;
 
-/* --------------------------- Contact Section --------------------------- */
 const ContactSection = styled.section`
   background: #f8fafc;
   padding: 40px 0 80px;
@@ -421,10 +416,12 @@ const InputWrap = styled.div`
     font-family: inherit;
     font-size: 14px;
     outline: none;
-    transition: border-color 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;;
 
     &:focus {
       border-color: ${({ theme }) => theme.colors.primary};
+      background: white;
+      box-shadow: 0 0 0 3px rgba(10, 155, 71, 0.1);
     }
   }
 
@@ -485,7 +482,6 @@ export default function Home() {
   const [status, setStatus] = useState("idle");
   const timeoutRef = useRef(null);
 
-  // Clear timeout to prevent memory leaks if component unmounts
   useEffect(() => {
     return () => clearTimeout(timeoutRef.current);
   }, []);
@@ -493,13 +489,11 @@ export default function Home() {
   const handleContactSubmit = (e) => {
     e.preventDefault();
     setStatus("submitting");
-    
-    // 1. Simulate network request
+
     setTimeout(() => {
       setStatus("success");
       e.target.reset();
-      
-      // 2. Auto-reset the form after 6 seconds
+
       timeoutRef.current = setTimeout(() => {
         setStatus((prev) => (prev === "success" ? "idle" : prev));
       }, 6000);

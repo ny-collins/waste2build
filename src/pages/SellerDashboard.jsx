@@ -118,10 +118,8 @@ export default function SellerDashboard() {
   useEffect(() => {
     const fetchMyData = async () => {
       try {
-        const { data } = await axios.get("http://localhost:3000/api/listings");
-        // Strict domain isolation: Filter only objects assigned to this JWT identity
-        const filtered = data.filter(l => l.seller_id === user.id);
-        setMyListings(filtered);
+        const { data } = await axios.get(`/api/listings?sellerId=${user.id}`);
+        setMyListings(data);
       } catch (error) {
         console.error("Data pipeline failure:", error);
       } finally {
@@ -132,7 +130,6 @@ export default function SellerDashboard() {
     if (user?.id) fetchMyData();
   }, [user]);
 
-  // Derived state aggregation
   const activeCount = myListings.filter(l => l.status === "available").length;
   const pendingCount = myListings.filter(l => l.status === "pending").length;
 

@@ -24,6 +24,7 @@ db.serialize(() => {
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
     role TEXT NOT NULL CHECK(role IN ('seller', 'recycler', 'admin')),
+    points INTEGER DEFAULT 0, -- NEW: Reward points balance
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )`);
 
@@ -48,6 +49,26 @@ db.serialize(() => {
     FOREIGN KEY (listing_id) REFERENCES listings(id) ON DELETE CASCADE
   )`);
 
+  db.run(`CREATE TABLE IF NOT EXISTS coupons (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    type TEXT NOT NULL CHECK(type IN ('Airtime', 'Voucher', 'Gift Card')),
+    brand TEXT NOT NULL,
+    amount INTEGER NOT NULL,
+    point_cost INTEGER NOT NULL, -- How many points it costs to redeem
+    code TEXT UNIQUE NOT NULL,
+    status TEXT DEFAULT 'active' CHECK(status IN ('active', 'redeemed', 'expired')),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS redemptions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    coupon_id INTEGER NOT NULL,
+    redeemed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (coupon_id) REFERENCES coupons(id)
+  )`);
+
   db.run(`CREATE TABLE IF NOT EXISTS pickups (
     id TEXT PRIMARY KEY,
     listing_id INTEGER NOT NULL,
@@ -61,6 +82,21 @@ db.serialize(() => {
     FOREIGN KEY (recycler_id) REFERENCES users(id)
   )`, () => {
     console.log('[DB] Relational schemas verified and mounted.');
+  });
+
+  db.get("SELECT COUNT(*) as count FROM coupons", (err, row) => {
+    if (row && row.count === 0) {
+      console.log("[DB] Empty catalog detected. Provisioning initial rewards...");
+      const stmt = db.prepare(`
+        INSERT INTO coupons (type, brand, amount, point_cost, code) 
+        VALUES (?, ?, ?, ?, ?)
+      `);
+
+      stmt.run(['Airtime', 'MTN', 500, 50, 'WTB-MTN-500']);
+      stmt.run(['Voucher', 'Shoprite', 5000, 500, 'WTB-SHOP-5K']);
+      stmt.run(['Gift Card', 'Amazon', 10000, 1000, 'WTB-AMZ-10K']);
+      stmt.finalize();
+    }
   });
 });
 

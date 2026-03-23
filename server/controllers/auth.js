@@ -2,8 +2,7 @@ import db from '../db.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-// In a production environment, this secret MUST be in a .env file.
-const JWT_SECRET = process.env.JWT_SECRET || 'waste2build_super_secret_dev_key_2026';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 export const register = async (req, res) => {
   const { fullName, email, password, role } = req.body;
@@ -28,6 +27,7 @@ export const register = async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ error: 'Server cryptography error' });
+    console.error(err);
   }
 };
 

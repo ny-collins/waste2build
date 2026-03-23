@@ -1,16 +1,10 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import styled from "styled-components";
+import axios from "axios";
 import {
-  FiGift,
-  FiTrendingUp,
-  FiCheckCircle,
-  FiClock,
-  FiCopy,
-  FiSmartphone,
-  FiCreditCard,
+  FiGift, FiTrendingUp, FiCheckCircle, FiClock,
+  FiCopy, FiSmartphone, FiCreditCard,
 } from "react-icons/fi";
-
-/* --------------------------- Styles --------------------------- */
 
 const Page = styled.div`
   padding: 0 0 60px;
@@ -309,103 +303,79 @@ const HelpText = styled.div`
   line-height: 1.6;
 `;
 
-/* --------------------------- Mock Data --------------------------- */
-
-const MOCK_COUPONS = [
-  {
-    id: "c1",
-    type: "Airtime",
-    amount: 500,
-    brand: "MTN",
-    code: "WTB-AIR-12345",
-    expires: "3/14/2026",
-    status: "active",
-    bg: "linear-gradient(135deg, #2563eb, #1d4ed8)",
-    icon: <FiSmartphone />,
-  },
-  {
-    id: "c2",
-    type: "Voucher",
-    amount: 1000,
-    brand: "Shoprite",
-    code: "WTB-VOU-67890",
-    expires: "4/14/2026",
-    status: "active",
-    bg: "linear-gradient(135deg, #a855f7, #7c3aed)",
-    icon: <FiGift />,
-  },
-  {
-    id: "c3",
-    type: "Gift Card",
-    amount: 2000,
-    brand: "Amazon",
-    code: "WTB-GFT-11223",
-    expires: "5/14/2026",
-    status: "active",
-    bg: "linear-gradient(135deg, #f97316, #ea580c)",
-    icon: <FiCreditCard />,
-  },
-  {
-    id: "c4",
-    type: "Airtime",
-    amount: 300,
-    brand: "Glo",
-    code: "WTB-AIR-44556",
-    expires: "2/01/2026",
-    status: "redeemed",
-    bg: "linear-gradient(135deg, #0ea5e9, #0284c7)",
-    icon: <FiSmartphone />,
-  },
-  {
-    id: "c5",
-    type: "Voucher",
-    amount: 500,
-    brand: "Konga",
-    code: "WTB-VOU-99001",
-    expires: "1/10/2026",
-    status: "expired",
-    bg: "linear-gradient(135deg, #64748b, #475569)",
-    icon: <FiGift />,
-  },
-];
+const getVisuals = (type) => {
+  if (type === 'Airtime') return { bg: "linear-gradient(135deg, #2563eb, #1d4ed8)", icon: <FiSmartphone /> };
+  if (type === 'Voucher') return { bg: "linear-gradient(135deg, #a855f7, #7c3aed)", icon: <FiGift /> };
+  return { bg: "linear-gradient(135deg, #f97316, #ea580c)", icon: <FiCreditCard /> };
+};
 
 export default function Rewards() {
-  const [tab, setTab] = useState("active"); // active | redeemed | expired
+  const [tab, setTab] = useState("catalog"); // catalog | redeemed
+  const [points, setPoints] = useState(0);
+  const [catalog, setCatalog] = useState([]);
+  const [myCoupons, setMyCoupons] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const coupons = useMemo(() => {
-    return MOCK_COUPONS.filter((c) => c.status === tab);
-  }, [tab]);
+  const fetchRewardsData = async () => {
+    try {
+      // Fetch both endpoints concurrently
+      const [meRes, catalogRes] = await Promise.all([
+        axios.get("/api/rewards/me"),
+        axios.get("/api/rewards/catalog")
+      ]);
+      setPoints(meRes.data.points);
+      setMyCoupons(meRes.data.redeemedCoupons);
+      setCatalog(catalogRes.data);
+    } catch (err) {
+      console.error("Failed to fetch rewards", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRewardsData();
+  }, []);
+
+  const currentView = useMemo(() => {
+    return tab === "catalog" ? catalog : myCoupons;
+  }, [tab, catalog, myCoupons]);
 
   const summary = useMemo(() => {
-    const active = MOCK_COUPONS.filter((c) => c.status === "active");
-    const redeemed = MOCK_COUPONS.filter((c) => c.status === "redeemed");
-
-    const totalCouponValue = active.reduce((s, c) => s + c.amount, 0);
-    const pointsEarned = 1125;
-    const redeemedValue = redeemed.reduce((s, c) => s + c.amount, 0);
-
-    return { totalCouponValue, activeCount: active.length, pointsEarned, redeemedValue, redeemedCount: redeemed.length };
-  }, []);
+    const redeemedValue = myCoupons.reduce((sum, c) => sum + c.amount, 0);
+    return { currentPoints: points, redeemedValue, redeemedCount: myCoupons.length };
+  }, [points, myCoupons]);
 
   const copyCode = async (code) => {
     try {
       await navigator.clipboard.writeText(code);
-      alert("Code copied!");
+      alert("Code copied to clipboard!");
     } catch {
       alert("Copy failed. Please copy manually.");
     }
   };
 
-  const redeemNow = (coupon) => {
-    alert(`Redeem flow will be connected to backend later.\n\nCoupon: ${coupon.code}`);
+  const redeemNow = async (coupon) => {
+    if (!window.confirm(`Redeem ${coupon.brand} ${coupon.type} for ${coupon.point_cost} points?`)) return;
+    
+    try {
+      await axios.post("/api/rewards/redeem", { couponId: coupon.id });
+      alert("Transaction successful! Coupon redeemed.");
+      fetchRewardsData(); // Refresh the ledger state
+      setTab("redeemed"); // Auto-switch to the redeemed tab
+    } catch (err) {
+      alert(err.response?.data?.error || "Transaction failed");
+    }
   };
+
+  if (loading) return <Page><Header><Container><Title>Loading Ledger...</Title></Container></Header></Page>;
 
   return (
     <Page>
       <Header>
         <Container>
           <Title>Rewards & Coupons</Title>
-          <Sub>Redeem your earned coupons for airtime, vouchers, and gift cards.</Sub>
+          <Sub>Redeem your earned points for airtime, vouchers, and gift cards.</Sub>
         </Container>
       </Header>
 
@@ -415,131 +385,110 @@ export default function Rewards() {
             <SummaryCard $tone="#F2EDFF">
               <SummaryTop>
                 <div>
-                  <SummaryLabel>Total Coupon Value</SummaryLabel>
-                  <SummaryValue>₦{summary.totalCouponValue.toLocaleString()}</SummaryValue>
-                  <SummaryHint>{summary.activeCount} active coupons</SummaryHint>
+                  <SummaryLabel>Available Balance</SummaryLabel>
+                  <SummaryValue>{summary.currentPoints} Points</SummaryValue>
+                  <SummaryHint>Earn more by fulfilling pickups</SummaryHint>
                 </div>
-                <IconBox>
-                  <FiGift />
-                </IconBox>
-              </SummaryTop>
-            </SummaryCard>
-
-            <SummaryCard $tone="#E9FBF1">
-              <SummaryTop>
-                <div>
-                  <SummaryLabel>Points Earned</SummaryLabel>
-                  <SummaryValue>{summary.pointsEarned}</SummaryValue>
-                  <SummaryHint>10% of total earnings</SummaryHint>
-                </div>
-                <IconBox>
-                  <FiTrendingUp />
-                </IconBox>
+                <IconBox><FiTrendingUp /></IconBox>
               </SummaryTop>
             </SummaryCard>
 
             <SummaryCard $tone="#EAF3FF">
               <SummaryTop>
                 <div>
-                  <SummaryLabel>Redeemed Value</SummaryLabel>
+                  <SummaryLabel>Total Value Redeemed</SummaryLabel>
                   <SummaryValue>₦{summary.redeemedValue.toLocaleString()}</SummaryValue>
-                  <SummaryHint>{summary.redeemedCount} coupon redeemed</SummaryHint>
+                  <SummaryHint>{summary.redeemedCount} coupons secured</SummaryHint>
                 </div>
-                <IconBox>
-                  <FiCheckCircle />
-                </IconBox>
+                <IconBox><FiCheckCircle /></IconBox>
               </SummaryTop>
             </SummaryCard>
           </SummaryGrid>
 
           <Card>
             <CardHead>
-              <CardTitle>Your Coupons</CardTitle>
+              <CardTitle>Reward Ledger</CardTitle>
             </CardHead>
 
             <Tabs>
-              <Tab type="button" $active={tab === "active"} onClick={() => setTab("active")}>
-                Active
+              <Tab type="button" $active={tab === "catalog"} onClick={() => setTab("catalog")}>
+                Platform Catalog
               </Tab>
               <Tab type="button" $active={tab === "redeemed"} onClick={() => setTab("redeemed")}>
-                Redeemed
-              </Tab>
-              <Tab type="button" $active={tab === "expired"} onClick={() => setTab("expired")}>
-                Expired
+                My Wallet
               </Tab>
             </Tabs>
 
             <CardBody>
-              {coupons.length === 0 ? (
+              {currentView.length === 0 ? (
                 <Empty>
-                  <FiClock /> No {tab} coupons
+                  <FiClock /> No coupons found in {tab === 'catalog' ? 'the catalog' : 'your wallet'}
                 </Empty>
               ) : (
                 <CouponGrid>
-                  {coupons.map((c) => (
-                    <Coupon key={c.id} $bg={c.bg}>
-                      <Pill>{tab}</Pill>
+                  {currentView.map((c) => {
+                    const visuals = getVisuals(c.type);
+                    return (
+                      <Coupon key={c.id || c.code} $bg={visuals.bg}>
+                        <Pill>{tab === 'catalog' ? 'Available' : 'Redeemed'}</Pill>
+                        <CouponTop>
+                          <div>
+                            <CouponType>{c.type}</CouponType>
+                            <CouponAmount>₦{c.amount.toLocaleString()}</CouponAmount>
+                            <CouponBrand>{c.brand}</CouponBrand>
+                          </div>
+                          <IconBox>{visuals.icon}</IconBox>
+                        </CouponTop>
 
-                      <CouponTop>
-                        <div>
-                          <CouponType>{c.type}</CouponType>
-                          <CouponAmount>₦{c.amount.toLocaleString()}</CouponAmount>
-                          <CouponBrand>{c.brand}</CouponBrand>
-                        </div>
+                        <CodeRow>
+                          <Code>{tab === "catalog" ? "••••-••••-••••" : c.code}</Code>
+                          {tab === "redeemed" && (
+                            <CopyBtn type="button" onClick={() => copyCode(c.code)}>
+                              <FiCopy /> Copy
+                            </CopyBtn>
+                          )}
+                        </CodeRow>
 
-                        <IconBox>{c.icon}</IconBox>
-                      </CouponTop>
-
-                      <CodeRow>
-                        <Code>{c.code}</Code>
-                        <CopyBtn type="button" onClick={() => copyCode(c.code)}>
-                          <FiCopy /> Copy
-                        </CopyBtn>
-                      </CodeRow>
-
-                      <CouponMeta>
-                        <span>Expires: {c.expires}</span>
-                        {tab === "active" ? (
-                          <RedeemBtn type="button" onClick={() => redeemNow(c)}>
-                            Redeem Now
-                          </RedeemBtn>
-                        ) : (
-                          <span>{tab === "redeemed" ? "Redeemed" : "Expired"}</span>
-                        )}
-                      </CouponMeta>
-                    </Coupon>
-                  ))}
+                        <CouponMeta>
+                          <span>{tab === "catalog" ? `Cost: ${c.point_cost} pts` : `Redeemed: ${new Date(c.redeemed_at).toLocaleDateString()}`}</span>
+                          {tab === "catalog" && (
+                            <RedeemBtn type="button" onClick={() => redeemNow(c)}>
+                              Redeem Now
+                            </RedeemBtn>
+                          )}
+                        </CouponMeta>
+                      </Coupon>
+                    );
+                  })}
                 </CouponGrid>
               )}
             </CardBody>
           </Card>
 
           <HelpBox>
-            <HelpTitle>How to Earn More Coupons</HelpTitle>
-
+            <HelpTitle>How to Earn More Points</HelpTitle>
             <HelpGrid>
               <HelpCard>
                 <HelpTop>
                   <FiGift /> Sell More Waste
                 </HelpTop>
-                <HelpText>Earn 10% of your sale value as coupon points with every transaction.</HelpText>
+                <HelpText>Earn points by successfully completing transactions with verified recyclers.</HelpText>
               </HelpCard>
-
               <HelpCard>
                 <HelpTop>
                   <FiTrendingUp /> Higher Quality
                 </HelpTop>
-                <HelpText>Better quality materials fetch higher prices and more reward points.</HelpText>
+                <HelpText>Better quality, sorted materials fetch higher point bonuses.</HelpText>
               </HelpCard>
-
               <HelpCard>
                 <HelpTop>
                   <FiCheckCircle /> Regular Activity
                 </HelpTop>
-                <HelpText>Active sellers receive bonus points and exclusive coupon offers.</HelpText>
+                <HelpText>Active sellers receive exclusive access to premium rewards.</HelpText>
               </HelpCard>
             </HelpGrid>
           </HelpBox>
+
         </Container>
       </Body>
     </Page>

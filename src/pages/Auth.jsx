@@ -234,7 +234,7 @@ export default function Auth() {
     setError("");
 
     try {
-      const baseURL = "http://localhost:3000";
+      const baseURL = "";
       const endpoint = isLogin ? `${baseURL}/api/auth/login` : `${baseURL}/api/auth/register`;
       
       const payload = isLogin 
@@ -243,11 +243,9 @@ export default function Auth() {
 
       const { data } = await axios.post(endpoint, payload);
       
-      // 1. Persist to local storage and React state
       localStorage.setItem("token", data.token);
       login(data.token, data.user);
 
-      // 2. Graceful SPA Routing (Preserves State)
       if (data.user.role === "seller") {
         navigate("/seller/dashboard");
       } else if (data.user.role === "recycler") {

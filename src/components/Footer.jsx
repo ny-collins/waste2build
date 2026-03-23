@@ -28,16 +28,22 @@ const Title = styled.h4`
   letter-spacing: 0.5px;
 `;
 
+const BrandTitle = styled(Title)`
+  color: ${({ theme }) => theme.colors.primary};
+  font-size: 18px;
+  letter-spacing: 1px;
+`;
+
 const NavLink = styled(RouterLink)`
   display: block;
   color: #cbd5e1;
   font-size: 13px;
   margin: 8px 0;
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: all ${({ theme }) => theme.transitions.normal};
   
   &:hover {
-    color: #eafff1;
+    color: ${({ theme }) => theme.colors.primary};
     transform: translateX(4px);
   }
 `;
@@ -48,11 +54,11 @@ const LegalLink = styled.a`
   font-size: 13px;
   margin: 8px 0;
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: all ${({ theme }) => theme.transitions.normal};
   cursor: pointer;
   
   &:hover {
-    color: #eafff1;
+    color: ${({ theme }) => theme.colors.primary};
     transform: translateX(4px);
   }
 `;
@@ -95,7 +101,7 @@ export default function Footer() {
     <Wrap>
       <Inner>
         <div>
-          <Title>WASTE2BUILD</Title>
+          <BrandTitle>WASTE2BUILD</BrandTitle>
           <p style={{ margin: 0, fontSize: 13, lineHeight: 1.6 }}>
             Connecting communities with recyclers to transform waste into valuable resources and protect our ecosystems.
           </p>

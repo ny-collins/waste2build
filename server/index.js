@@ -1,11 +1,13 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import db from "./db.js";
+import "./db.js";
 import authRoutes from "./routes/auth.js";
 import listingRoutes from "./routes/listings.js";
 import fs from 'fs';
+import rewardsRoutes from "./routes/rewards.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,6 +27,7 @@ app.use('/uploads', express.static(uploadDir));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/listings', listingRoutes);
+app.use('/api/rewards', rewardsRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'operational', timestamp: new Date().toISOString() });

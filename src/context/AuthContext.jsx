@@ -4,7 +4,6 @@ import axios from 'axios';
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  // Lazy initialization: Functions passed to useState only execute on the initial render
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem('user');
     return savedUser ? JSON.parse(savedUser) : null;
@@ -14,11 +13,9 @@ export function AuthProvider({ children }) {
     return localStorage.getItem('token') || null;
   });
 
-  // Synchronization effect: Binds the token to the Axios instance and persistent storage
   useEffect(() => {
     if (token) {
       localStorage.setItem('token', token);
-      // Automatically inject the Authorization header into every future axios request
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     } else {
       localStorage.removeItem('token');
@@ -26,7 +23,6 @@ export function AuthProvider({ children }) {
     }
   }, [token]);
 
-  // Synchronization effect: Binds the user object to persistent storage
   useEffect(() => {
     if (user) {
       localStorage.setItem('user', JSON.stringify(user));
@@ -52,5 +48,5 @@ export function AuthProvider({ children }) {
   );
 }
 
-// Custom hook abstraction for consuming the context
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext);

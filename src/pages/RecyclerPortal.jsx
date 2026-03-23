@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import styled from "styled-components";
+import axios from "axios";
 import { FiBox, FiCheckCircle, FiClock, FiLayers, FiEye, FiCheck } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -247,56 +248,56 @@ const Empty = styled.div`
   line-height: 1.6;
 `;
 
-const MOCK = [
-  { id: "1", title: "Clean PET Plastic Bottles", location: "Lagos, Nigeria", weightKg: 25, pricePerKg: 150, status: "available" },
-  { id: "2", title: "HDPE Plastic Containers", location: "Abuja, Nigeria", weightKg: 40, pricePerKg: 180, status: "available" },
-  { id: "3", title: "Mixed Plastic Bags", location: "Port Harcourt, Nigeria", weightKg: 15, pricePerKg: 120, status: "pending" },
-  { id: "4", title: "PP Plastic Scraps", location: "Kano, Nigeria", weightKg: 60, pricePerKg: 200, status: "available" },
-];
-
 export default function RecyclerPortal() {
-  const [tab, setTab] = useState("all"); // all | available | pending | accepted
-  const [acceptedIds, setAcceptedIds] = useState([]);
+  const [tab, setTab] = useState("all");
+  const [listings, setListings] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const rows = useMemo(() => {
-    const withAccepted = MOCK.map((x) => (acceptedIds.includes(x.id) ? { ...x, status: "accepted" } : x));
+  useEffect(() => {
+    const fetchMarketplace = async () => {
+      try {
+        const { data } = await axios.get("/api/listings");
+        setListings(data);
+      } catch (error) {
+        console.error("Failed to fetch marketplace data", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMarketplace();
+  }, []);
 
-    if (tab === "all") return withAccepted;
-    if (tab === "available") return withAccepted.filter((x) => x.status === "available");
-    if (tab === "pending") return withAccepted.filter((x) => x.status === "pending");
-    if (tab === "accepted") return withAccepted.filter((x) => x.status === "accepted");
-    return withAccepted;
-  }, [tab, acceptedIds]);
+  const rows = useMemo(() => {
+  if (tab === "all") return listings;
+  return listings.filter((x) => x.status == tab);
+  }, [tab, listings]);
 
   const stats = useMemo(() => {
-    const base = MOCK.length;
-    const available = MOCK.filter((x) => x.status === "available").length;
-    const pending = MOCK.filter((x) => x.status === "pending").length;
-    const accepted = acceptedIds.length;
+    const base = listings.length;
+    const available = listings.filter((x) => x.status === "available").length;
+    const pending = listings.filter((x) => x.status === "pending").length;
+    const accepted = pending;
     return { base, available, pending, accepted };
-  }, [acceptedIds]);
+  }, [listings]);
 
   const acceptListing = (id) => {
-    if (acceptedIds.includes(id)) return;
-    setAcceptedIds((p) => [...p, id]);
-    // UI-only: take recycler to listing details page (your accept listing/details screen)
     navigate(`/listings/${id}`);
   };
 
   const statusIcon = (status) => {
     if (status === "available") return <FiCheckCircle />;
     if (status === "pending") return <FiClock />;
-    if (status === "accepted") return <FiCheck />;
     return <FiLayers />;
   };
 
   const statusText = (status) => {
     if (status === "available") return "Available";
-    if (status === "pending") return "Pending";
-    if (status === "accepted") return "Accepted";
+    if (status === "pending") return "Pending/Accepted";
     return "All";
   };
+
+  if (loading) return <Page><Header><Container><Title>Loading Portal...</Title></Container></Header></Page>;
 
   return (
     <Page>

@@ -4,7 +4,6 @@ import { FiUploadCloud, FiMapPin, FiTag, FiFileText, FiBox, FiAlertCircle, FiTre
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-// 1. The Automated Pricing Engine (Naira per Kg)
 const PLATFORM_RATES = {
   plastic: 150,
   metal: 300,
@@ -13,7 +12,6 @@ const PLATFORM_RATES = {
   other: 20,
 };
 
-// ... [Keeping existing styled-components exactly as they were] ...
 const Page = styled.div`
   padding: 0 0 60px;
 `;
@@ -327,7 +325,6 @@ export default function CreateListing() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   
-  // Removed pricePerKg from manual state
   const [form, setForm] = useState({
     title: "",
     category: "plastic",
@@ -347,7 +344,6 @@ export default function CreateListing() {
     if (error) setError("");
   };
 
-  // 2. Derived State for Pricing
   const currentRate = PLATFORM_RATES[form.category];
   
   const totalPrice = useMemo(() => {
@@ -384,14 +380,13 @@ export default function CreateListing() {
       formData.append("description", form.description);
       formData.append("location", form.location);
       formData.append("weightKg", form.weightKg);
-      // Append the platform-dictated rate to the backend payload
       formData.append("pricePerKg", currentRate);
       
       photos.forEach((photo) => {
         formData.append("photos", photo.file);
       });
 
-      await axios.post("http://localhost:3000/api/listings", formData, {
+      await axios.post("/api/listings", formData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
 

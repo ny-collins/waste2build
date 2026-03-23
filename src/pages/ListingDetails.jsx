@@ -17,8 +17,6 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 
-/* --------------------------- Layout --------------------------- */
-
 const Page = styled.div`
   padding: 0 0 60px;
 `;
@@ -306,8 +304,6 @@ const ErrorBanner = styled.div`
   gap: 10px;
 `;
 
-/* --------------------------- Modal --------------------------- */
-
 const Overlay = styled.div`
   position: fixed;
   inset: 0;
@@ -466,12 +462,10 @@ export default function ListingDetails() {
     notes: "",
   });
 
-  // 1. Fetch live listing data
   useEffect(() => {
     const fetchListing = async () => {
       try {
         const { data } = await axios.get(`/api/listings/${id}`);
-        // Schema mapping (ACL)
         setListing({
           id: data.id,
           title: data.title,
@@ -485,6 +479,7 @@ export default function ListingDetails() {
           images: data.images || []
         });
       } catch (err) {
+        console.error(err);
         setError("Listing not found or network error.");
       } finally {
         setLoading(false);
@@ -506,12 +501,11 @@ export default function ListingDetails() {
   };
 
   const handleOpenModal = () => {
-    // Deferred Authentication Check
     if (!user) {
       navigate('/auth');
       return;
     }
-    // Role Authorization Check
+
     if (user.role !== 'recycler') {
       alert("Only registered Recyclers can accept listings on the marketplace.");
       return;
@@ -521,7 +515,6 @@ export default function ListingDetails() {
 
   const onPickupChange = (key) => (e) => setPickup((p) => ({ ...p, [key]: e.target.value }));
 
-  // 2. Execute Atomic Transaction
   const confirmAccept = async () => {
     if (!pickup.date || !pickup.time) {
       alert("Please provide a pickup date and time.");
@@ -532,7 +525,6 @@ export default function ListingDetails() {
     try {
       const { data } = await axios.post(`/api/listings/${id}/accept`, pickup);
       setOpen(false);
-      // Route to the final confirmation page
       navigate(`/pickup/${data.pickupId}`);
     } catch (err) {
       alert(err.response?.data?.error || "Failed to accept listing.");

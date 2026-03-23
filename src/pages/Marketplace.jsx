@@ -89,8 +89,7 @@ export default function Marketplace() {
   useEffect(() => {
     const fetchListings = async () => {
       try {
-        const { data } = await axios.get("http://localhost:3000/api/listings");
-        // Strict deterministic filtering for public view
+        const { data } = await axios.get("/api/listings");
         const available = data.filter(l => l.status === "available");
         setListings(available);
       } catch (error) {

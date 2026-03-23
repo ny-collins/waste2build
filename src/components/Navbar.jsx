@@ -1,11 +1,16 @@
-import { NavLink, Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
-import { FiLogOut, FiUser } from "react-icons/fi";
+import { FiLogOut, FiUser, FiMenu, FiX } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 
 const Bar = styled.header`
   background: white;
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  position: sticky;
+  top: 0;
+  z-index: ${({ theme }) => theme.zIndices.nav};
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
 `;
 
 const Inner = styled.div`
@@ -21,12 +26,8 @@ const BrandLink = styled(Link)`
   display: flex;
   align-items: center;
   gap: 10px;
-  text-decoration: none;
-  transition: opacity 0.2s ease;
-
-  &:hover {
-    opacity: 0.8;
-  }
+  transition: opacity ${({ theme }) => theme.transitions.fast};
+  &:hover { opacity: 0.8; }
 `;
 
 const BrandLogo = styled.img`
@@ -41,29 +42,65 @@ const BrandText = styled.div`
   font-size: 18px;
 `;
 
+const MobileToggle = styled.button`
+  display: none;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  color: ${({ theme }) => theme.colors.text};
+  cursor: pointer;
+  padding: 4px;
+
+  @media (max-width: 768px) {
+    display: grid;
+    place-items: center;
+  }
+`;
+
 const Nav = styled.nav`
   display: flex;
-  gap: 18px;
+  gap: 8px;
   align-items: center;
 
   a {
-    font-size: 13px;
+    font-size: 14px;
     color: ${({ theme }) => theme.colors.muted};
-    padding: 8px 12px;
+    padding: 8px 14px;
     border-radius: ${({ theme }) => theme.radius.pill};
-    text-decoration: none;
-    transition: all 0.2s ease;
+    transition: all ${({ theme }) => theme.transitions.fast};
+    font-weight: 600;
   }
 
   a:hover:not(.active) {
-    background: #f8fafc;
-    color: ${({ theme }) => theme.colors.primary};
+    background: ${({ theme }) => theme.colors.bg};
+    color: ${({ theme }) => theme.colors.text};
   }
 
   a.active {
-    background: #eafff1;
-    color: ${({ theme }) => theme.colors.primary};
-    font-weight: 700;
+    background: ${({ theme }) => theme.colors.primaryLight};
+    color: ${({ theme }) => theme.colors.primaryDark};
+  }
+
+  @media (max-width: 768px) {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    flex-direction: column;
+    padding: 18px;
+    border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+    box-shadow: ${({ theme }) => theme.shadow.md};
+    gap: 12px;
+    
+    /* Dynamic visibility based on prop */
+    display: ${({ $isOpen }) => ($isOpen ? "flex" : "none")};
+    
+    a {
+      width: 100%;
+      text-align: center;
+      padding: 12px;
+    }
   }
 `;
 
@@ -72,42 +109,50 @@ const ActionBtn = styled(NavLink)`
   background: #fff;
   display: flex;
   align-items: center;
-  gap: 6px;
-  transition: all 0.2s ease;
+  justify-content: center;
+  gap: 8px;
 
   &:hover {
-    background: #f8fafc;
     border-color: ${({ theme }) => theme.colors.primary};
     color: ${({ theme }) => theme.colors.primary};
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
   }
+
+  @media (max-width: 768px) { width: 100%; }
 `;
 
 const LogoutBtn = styled.button`
   border: 1px solid ${({ theme }) => theme.colors.border};
   background: #fff;
   color: ${({ theme }) => theme.colors.muted};
-  padding: 8px 12px;
+  padding: 8px 14px;
   border-radius: ${({ theme }) => theme.radius.pill};
-  font-size: 13px;
-  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-weight: 700;
-  transition: all 0.2s ease;
+  justify-content: center;
+  gap: 8px;
+  transition: all ${({ theme }) => theme.transitions.fast};
   
   &:hover {
-    background: #f8fafc;
-    border-color: ${({ theme }) => theme.colors.primary};
-    color: ${({ theme }) => theme.colors.primary};
+    background: #fef2f2;
+    border-color: #fca5a5;
+    color: #ef4444;
   }
+
+  @media (max-width: 768px) { width: 100%; padding: 12px; }
 `;
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsOpen(false);
+  }, [location.pathname]);
 
   const handleLogout = () => {
     logout();
@@ -122,7 +167,11 @@ export default function Navbar() {
           <BrandText>WASTE2BUILD</BrandText>
         </BrandLink>
 
-        <Nav>
+        <MobileToggle onClick={() => setIsOpen(!isOpen)} aria-label="Toggle Menu">
+          {isOpen ? <FiX /> : <FiMenu />}
+        </MobileToggle>
+
+        <Nav $isOpen={isOpen}>
           <NavLink to="/">Home</NavLink>
           <NavLink to="/about">About Us</NavLink>
           <NavLink to="/marketplace">Marketplace</NavLink>
