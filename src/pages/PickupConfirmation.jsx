@@ -79,7 +79,12 @@ const PickupId = styled.div`
   font-size: 24px;
   font-weight: 900;
   color: ${({ theme }) => theme.colors.text};
-  letter-spacing: 1px;
+  letter-spacing: 2px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  background: white;
+  padding: 8px 16px;
+  border-radius: ${({ theme }) => theme.radius.md};
+  border: 1px solid ${({ theme }) => theme.colors.border};
 `;
 
 const CopyBtn = styled.button`

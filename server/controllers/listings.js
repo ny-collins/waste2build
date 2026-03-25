@@ -60,7 +60,14 @@ export const getListings = async (req, res) => {
     sql += ` ORDER BY l.created_at DESC`;
 
     const rows = await query.all(sql, params);
-    res.json(rows);
+
+    const listingsWithImages = await Promise.all(rows.map(async (listing) => {
+      const images = await query.all(`SELECT file_path FROM listing_images WHERE listing_id = ?`, [listing.id]);
+      listing.images = images.map(img => img.file_path);
+      return listing;
+    }));
+
+    res.json(listingsWithImages);
   } catch (err) {
     res.status(500).json({ error: 'Query failed: ' + err.message });
   }

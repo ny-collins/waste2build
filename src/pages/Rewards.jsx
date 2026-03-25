@@ -8,11 +8,13 @@ import {
 
 const Page = styled.div`
   padding: 0 0 60px;
+  background: #f8fafc;
+  min-height: calc(100vh - 70px);
 `;
 
 const Header = styled.section`
-  background: ${({ theme }) => theme.colors.teal};
-  padding: 44px 0;
+  background: linear-gradient(90deg, ${({ theme }) => theme.colors.teal}, ${({ theme }) => theme.colors.primary});
+  padding: 44px 0 60px;
   color: white;
 `;
 
@@ -24,11 +26,7 @@ const Container = styled.div`
 
 const Title = styled.h1`
   margin: 0;
-  font-size: 36px;
-
-  @media (max-width: 620px) {
-    font-size: 30px;
-  }
+  font-size: 32px;
 `;
 
 const Sub = styled.p`
@@ -39,278 +37,300 @@ const Sub = styled.p`
 `;
 
 const Body = styled.section`
-  padding: 18px 0 0;
+  padding: 0;
+  margin-top: -30px;
 `;
 
 const SummaryGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-  margin-top: -18px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
 
-  @media (max-width: 980px) {
+  @media (max-width: 768px) {
     grid-template-columns: 1fr;
   }
 `;
 
 const SummaryCard = styled.div`
-  background: ${({ $tone }) => $tone};
+  background: white;
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radius.lg};
-  box-shadow: ${({ theme }) => theme.shadow.sm};
-  padding: 16px;
-  display: grid;
-  gap: 8px;
-`;
-
-const SummaryTop = styled.div`
+  box-shadow: ${({ theme }) => theme.shadow.md};
+  padding: 24px;
   display: flex;
-  justify-content: space-between;
-  gap: 10px;
   align-items: center;
+  gap: 16px;
 `;
 
 const IconBox = styled.div`
-  width: 44px;
-  height: 44px;
+  width: 54px;
+  height: 54px;
   border-radius: ${({ theme }) => theme.radius.md};
-  background: rgba(255, 255, 255, 0.7);
+  background: ${({ $bg }) => $bg || "#f1f5f9"};
+  color: ${({ $color }) => $color || "#64748b"};
   display: grid;
   place-items: center;
+  font-size: 24px;
+`;
+
+const SummaryData = styled.div`
+  flex-grow: 1;
 `;
 
 const SummaryLabel = styled.div`
-  font-size: 12px;
+  font-size: 13px;
   color: ${({ theme }) => theme.colors.muted};
   font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 4px;
 `;
 
 const SummaryValue = styled.div`
   font-weight: 900;
-  font-size: 22px;
-`;
-
-const SummaryHint = styled.div`
-  font-size: 12px;
-  color: ${({ theme }) => theme.colors.muted};
+  font-size: 28px;
+  color: ${({ theme }) => theme.colors.text};
 `;
 
 const Card = styled.div`
-  margin-top: 14px;
   background: white;
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radius.lg};
   box-shadow: ${({ theme }) => theme.shadow.sm};
   overflow: hidden;
-`;
-
-const CardHead = styled.div`
-  padding: 14px 16px;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  align-items: center;
-`;
-
-const CardTitle = styled.div`
-  font-weight: 900;
+  margin-bottom: 24px;
 `;
 
 const Tabs = styled.div`
-  padding: 10px 14px;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  background: #f8fafc;
 `;
 
 const Tab = styled.button`
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  background: ${({ $active }) => ($active ? "#E9FBF1" : "#fff")};
-  color: ${({ theme, $active }) => ($active ? theme.colors.primary : theme.colors.muted)};
-  border-radius: ${({ theme }) => theme.radius.pill};
-  padding: 8px 12px;
+  flex: 1;
+  border: none;
+  background: ${({ $active }) => ($active ? "white" : "transparent")};
+  color: ${({ theme, $active }) => ($active ? theme.colors.text : theme.colors.muted)};
+  padding: 16px;
   font-weight: 900;
+  font-size: 14px;
   cursor: pointer;
+  border-bottom: 2px solid ${({ theme, $active }) => ($active ? theme.colors.primary : "transparent")};
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.text};
+  }
 `;
 
 const CardBody = styled.div`
-  padding: 16px;
+  padding: 24px;
 `;
 
 const CouponGrid = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-
-  @media (max-width: 980px) {
-    grid-template-columns: 1fr;
-  }
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
 `;
 
 const Coupon = styled.div`
   border-radius: ${({ theme }) => theme.radius.lg};
-  padding: 16px;
+  padding: 20px;
   color: white;
-  display: grid;
-  gap: 10px;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   overflow: hidden;
   background: ${({ $bg }) => $bg};
+  box-shadow: ${({ theme }) => theme.shadow.md};
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
 `;
 
 const Pill = styled.div`
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  background: rgba(255, 255, 255, 0.16);
+  display: inline-flex;
+  width: fit-content;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.2);
   color: #fff;
-  padding: 6px 10px;
+  padding: 4px 12px;
   border-radius: ${({ theme }) => theme.radius.pill};
   font-weight: 900;
-  font-size: 12px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
 `;
 
 const CouponTop = styled.div`
   display: flex;
   justify-content: space-between;
-  gap: 10px;
-  align-items: center;
+  align-items: flex-start;
 `;
 
 const CouponType = styled.div`
-  font-size: 12px;
-  letter-spacing: 0.3px;
-  opacity: 0.95;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  opacity: 0.9;
   font-weight: 900;
   text-transform: uppercase;
+  margin-bottom: 4px;
 `;
 
 const CouponAmount = styled.div`
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 900;
+  line-height: 1;
+  margin-bottom: 4px;
 `;
 
 const CouponBrand = styled.div`
-  font-size: 12px;
-  opacity: 0.95;
+  font-size: 14px;
+  opacity: 0.9;
+  font-weight: 600;
 `;
 
 const CodeRow = styled.div`
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.15);
   border-radius: ${({ theme }) => theme.radius.md};
-  padding: 12px;
+  padding: 12px 16px;
   display: flex;
   justify-content: space-between;
-  gap: 10px;
   align-items: center;
-  flex-wrap: wrap;
+  gap: 10px;
 `;
 
 const Code = styled.div`
   font-weight: 900;
-  letter-spacing: 0.6px;
+  letter-spacing: 2px;
+  font-family: monospace;
+  font-size: 16px;
 `;
 
 const CopyBtn = styled.button`
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  background: rgba(255, 255, 255, 0.18);
-  color: white;
-  padding: 10px 12px;
-  border-radius: ${({ theme }) => theme.radius.md};
+  border: none;
+  background: white;
+  color: #0f172a;
+  padding: 6px 12px;
+  border-radius: 4px;
   font-weight: 900;
+  font-size: 12px;
   display: inline-flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
   cursor: pointer;
-`;
+  transition: opacity 0.2s ease;
 
-const CouponMeta = styled.div`
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  align-items: center;
-  flex-wrap: wrap;
-  font-size: 12px;
-  opacity: 0.95;
+  &:hover { opacity: 0.9; }
 `;
 
 const RedeemBtn = styled.button`
   border: none;
-  background: rgba(255, 255, 255, 0.9);
+  background: white;
   color: #0f172a;
-  padding: 12px 14px;
+  padding: 10px 16px;
   border-radius: ${({ theme }) => theme.radius.md};
   font-weight: 900;
   cursor: pointer;
+  width: 100%;
+  transition: transform 0.1s ease, opacity 0.2s ease;
+
+  &:hover:not(:disabled) { transform: scale(1.02); }
+  
+  &:disabled { 
+    opacity: 0.5; 
+    cursor: not-allowed; 
+    transform: none; 
+    background: #e2e8f0;
+    color: #64748b;
+  }
+`;
+
+const CouponMeta = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 13px;
+  opacity: 0.95;
 `;
 
 const Empty = styled.div`
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
   border: 1px dashed ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radius.lg};
-  padding: 16px;
-  color: ${({ theme }) => theme.colors.muted};
-  font-size: 13px;
-  line-height: 1.6;
-  text-align: center;
+  
+  svg {
+    font-size: 40px;
+    color: #cbd5e1;
+    margin-bottom: 16px;
+  }
+  
+  h3 { margin: 0 0 8px; color: ${({ theme }) => theme.colors.text}; }
+  p { margin: 0 auto; color: ${({ theme }) => theme.colors.muted}; font-size: 14px; max-width: 400px; }
 `;
 
 const HelpBox = styled.div`
-  margin-top: 14px;
+  background: #eafff1;
   border: 1px solid #b7f7cc;
-  background: #e9fbf1;
   border-radius: ${({ theme }) => theme.radius.lg};
-  padding: 14px;
+  padding: 24px;
 `;
 
-const HelpTitle = styled.div`
-  font-weight: 900;
+const HelpTitle = styled.h2`
+  margin: 0 0 16px;
+  font-size: 18px;
+  color: ${({ theme }) => theme.colors.primaryDark};
 `;
 
 const HelpGrid = styled.div`
-  margin-top: 10px;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-
-  @media (max-width: 980px) {
-    grid-template-columns: 1fr;
-  }
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
 `;
 
 const HelpCard = styled.div`
   background: #fff;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radius.lg};
-  padding: 14px;
-  display: grid;
-  gap: 6px;
+  border: 1px solid rgba(10, 155, 71, 0.2);
+  border-radius: ${({ theme }) => theme.radius.md};
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 `;
 
 const HelpTop = styled.div`
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 10px;
   font-weight: 900;
+  color: ${({ theme }) => theme.colors.text};
+  
+  svg {
+    color: ${({ theme }) => theme.colors.primary};
+    font-size: 18px;
+  }
 `;
 
 const HelpText = styled.div`
-  font-size: 12px;
+  font-size: 13px;
   color: ${({ theme }) => theme.colors.muted};
   line-height: 1.6;
 `;
 
 const getVisuals = (type) => {
-  if (type === 'Airtime') return { bg: "linear-gradient(135deg, #2563eb, #1d4ed8)", icon: <FiSmartphone /> };
-  if (type === 'Voucher') return { bg: "linear-gradient(135deg, #a855f7, #7c3aed)", icon: <FiGift /> };
-  return { bg: "linear-gradient(135deg, #f97316, #ea580c)", icon: <FiCreditCard /> };
+  if (type === 'Airtime') return { bg: "linear-gradient(135deg, #3b82f6, #1d4ed8)", icon: <FiSmartphone /> };
+  if (type === 'Voucher') return { bg: "linear-gradient(135deg, #a855f7, #6d28d9)", icon: <FiGift /> };
+  return { bg: "linear-gradient(135deg, #f97316, #c2410c)", icon: <FiCreditCard /> };
 };
 
 export default function Rewards() {
-  const [tab, setTab] = useState("catalog"); // catalog | redeemed
+  const [tab, setTab] = useState("catalog"); 
   const [points, setPoints] = useState(0);
   const [catalog, setCatalog] = useState([]);
   const [myCoupons, setMyCoupons] = useState([]);
@@ -318,7 +338,6 @@ export default function Rewards() {
 
   const fetchRewardsData = async () => {
     try {
-      // Fetch both endpoints concurrently
       const [meRes, catalogRes] = await Promise.all([
         axios.get("/api/rewards/me"),
         axios.get("/api/rewards/catalog")
@@ -361,8 +380,8 @@ export default function Rewards() {
     try {
       await axios.post("/api/rewards/redeem", { couponId: coupon.id });
       alert("Transaction successful! Coupon redeemed.");
-      fetchRewardsData(); // Refresh the ledger state
-      setTab("redeemed"); // Auto-switch to the redeemed tab
+      fetchRewardsData(); 
+      setTab("redeemed"); 
     } catch (err) {
       alert(err.response?.data?.error || "Transaction failed");
     }
@@ -382,34 +401,24 @@ export default function Rewards() {
       <Body>
         <Container>
           <SummaryGrid>
-            <SummaryCard $tone="#F2EDFF">
-              <SummaryTop>
-                <div>
-                  <SummaryLabel>Available Balance</SummaryLabel>
-                  <SummaryValue>{summary.currentPoints} Points</SummaryValue>
-                  <SummaryHint>Earn more by fulfilling pickups</SummaryHint>
-                </div>
-                <IconBox><FiTrendingUp /></IconBox>
-              </SummaryTop>
+            <SummaryCard>
+              <IconBox $bg="#eafff1" $color="#0a9b47"><FiTrendingUp /></IconBox>
+              <SummaryData>
+                <SummaryLabel>Available Balance</SummaryLabel>
+                <SummaryValue>{summary.currentPoints} pts</SummaryValue>
+              </SummaryData>
             </SummaryCard>
 
-            <SummaryCard $tone="#EAF3FF">
-              <SummaryTop>
-                <div>
-                  <SummaryLabel>Total Value Redeemed</SummaryLabel>
-                  <SummaryValue>₦{summary.redeemedValue.toLocaleString()}</SummaryValue>
-                  <SummaryHint>{summary.redeemedCount} coupons secured</SummaryHint>
-                </div>
-                <IconBox><FiCheckCircle /></IconBox>
-              </SummaryTop>
+            <SummaryCard>
+              <IconBox $bg="#eaf3ff" $color="#2563eb"><FiCheckCircle /></IconBox>
+              <SummaryData>
+                <SummaryLabel>Total Value Redeemed</SummaryLabel>
+                <SummaryValue>₦{summary.redeemedValue.toLocaleString()}</SummaryValue>
+              </SummaryData>
             </SummaryCard>
           </SummaryGrid>
 
           <Card>
-            <CardHead>
-              <CardTitle>Reward Ledger</CardTitle>
-            </CardHead>
-
             <Tabs>
               <Tab type="button" $active={tab === "catalog"} onClick={() => setTab("catalog")}>
                 Platform Catalog
@@ -422,38 +431,52 @@ export default function Rewards() {
             <CardBody>
               {currentView.length === 0 ? (
                 <Empty>
-                  <FiClock /> No coupons found in {tab === 'catalog' ? 'the catalog' : 'your wallet'}
+                  <FiClock />
+                  <h3>No Coupons Found</h3>
+                  <p>There are currently no items in {tab === 'catalog' ? 'the catalog' : 'your wallet'}.</p>
                 </Empty>
               ) : (
                 <CouponGrid>
                   {currentView.map((c) => {
                     const visuals = getVisuals(c.type);
+                    const canRedeem = points >= c.point_cost;
+                    
                     return (
                       <Coupon key={c.id || c.code} $bg={visuals.bg}>
-                        <Pill>{tab === 'catalog' ? 'Available' : 'Redeemed'}</Pill>
                         <CouponTop>
                           <div>
+                            <Pill>{tab === 'catalog' ? 'Available' : 'Redeemed'}</Pill>
                             <CouponType>{c.type}</CouponType>
                             <CouponAmount>₦{c.amount.toLocaleString()}</CouponAmount>
                             <CouponBrand>{c.brand}</CouponBrand>
                           </div>
-                          <IconBox>{visuals.icon}</IconBox>
+                          <div style={{ fontSize: '38px', opacity: 0.8 }}>
+                            {visuals.icon}
+                          </div>
                         </CouponTop>
 
-                        <CodeRow>
-                          <Code>{tab === "catalog" ? "••••-••••-••••" : c.code}</Code>
-                          {tab === "redeemed" && (
+                        {tab === "redeemed" && (
+                          <CodeRow>
+                            <Code>{c.code}</Code>
                             <CopyBtn type="button" onClick={() => copyCode(c.code)}>
                               <FiCopy /> Copy
                             </CopyBtn>
-                          )}
-                        </CodeRow>
+                          </CodeRow>
+                        )}
 
                         <CouponMeta>
-                          <span>{tab === "catalog" ? `Cost: ${c.point_cost} pts` : `Redeemed: ${new Date(c.redeemed_at).toLocaleDateString()}`}</span>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700 }}>
+                            <span>{tab === "catalog" ? "Cost" : "Redeemed On"}</span>
+                            <span>{tab === "catalog" ? `${c.point_cost} pts` : new Date(c.redeemed_at).toLocaleDateString()}</span>
+                          </div>
+                          
                           {tab === "catalog" && (
-                            <RedeemBtn type="button" onClick={() => redeemNow(c)}>
-                              Redeem Now
+                            <RedeemBtn 
+                              type="button" 
+                              onClick={() => redeemNow(c)}
+                              disabled={!canRedeem}
+                            >
+                              {canRedeem ? "Redeem Now" : "Insufficient Points"}
                             </RedeemBtn>
                           )}
                         </CouponMeta>

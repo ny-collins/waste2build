@@ -1,16 +1,18 @@
 import { useMemo, useState, useEffect } from "react";
 import styled from "styled-components";
 import axios from "axios";
-import { FiBox, FiCheckCircle, FiClock, FiLayers, FiEye, FiCheck } from "react-icons/fi";
+import { FiBox, FiCheckCircle, FiClock, FiLayers, FiEye, FiInbox, FiArrowRight } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
 
 const Page = styled.div`
   padding: 0 0 60px;
+  background: #f8fafc;
+  min-height: calc(100vh - 70px);
 `;
 
 const Header = styled.section`
   background: linear-gradient(90deg, ${({ theme }) => theme.colors.teal}, ${({ theme }) => theme.colors.primary});
-  padding: 44px 0;
+  padding: 44px 0 60px;
   color: white;
 `;
 
@@ -20,17 +22,9 @@ const Container = styled.div`
   padding: 0 18px;
 `;
 
-const HeadRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  gap: 14px;
-  flex-wrap: wrap;
-  align-items: flex-end;
-`;
-
 const Title = styled.h1`
   margin: 0;
-  font-size: 34px;
+  font-size: 32px;
 `;
 
 const Sub = styled.p`
@@ -41,13 +35,14 @@ const Sub = styled.p`
 `;
 
 const Body = styled.section`
-  padding: 22px 0 0;
+  padding: 0;
+  margin-top: -30px;
 `;
 
 const StatsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
+  gap: 16px;
 
   @media (max-width: 980px) {
     grid-template-columns: repeat(2, 1fr);
@@ -61,41 +56,49 @@ const StatCard = styled.div`
   background: white;
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radius.lg};
-  box-shadow: ${({ theme }) => theme.shadow.sm};
-  padding: 14px;
-  display: grid;
-  gap: 8px;
-`;
-
-const StatTop = styled.div`
+  box-shadow: ${({ theme }) => theme.shadow.md};
+  padding: 20px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 16px;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
 `;
 
 const StatIcon = styled.div`
-  width: 42px;
-  height: 42px;
+  width: 54px;
+  height: 54px;
   border-radius: ${({ theme }) => theme.radius.md};
   display: grid;
   place-items: center;
   background: ${({ $tone }) => $tone};
   color: ${({ theme }) => theme.colors.text};
+  font-size: 24px;
+`;
+
+const StatData = styled.div`
+  flex-grow: 1;
 `;
 
 const StatLabel = styled.div`
   color: ${({ theme }) => theme.colors.muted};
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 4px;
 `;
 
 const StatValue = styled.div`
-  font-size: 22px;
+  font-size: 28px;
   font-weight: 900;
+  color: ${({ theme }) => theme.colors.text};
 `;
 
 const Panel = styled.div`
-  margin-top: 16px;
+  margin-top: 24px;
   background: white;
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radius.lg};
@@ -103,156 +106,185 @@ const Panel = styled.div`
   overflow: hidden;
 `;
 
-const PanelHead = styled.div`
-  padding: 14px 16px;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-`;
-
-const PanelTitle = styled.div`
-  font-weight: 900;
-`;
-
-const PanelSub = styled.div`
-  margin-top: 4px;
-  font-size: 12px;
-  color: ${({ theme }) => theme.colors.muted};
-`;
-
 const Tabs = styled.div`
   display: flex;
-  gap: 8px;
-  padding: 10px 14px;
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  flex-wrap: wrap;
+  background: #f8fafc;
 `;
 
 const Tab = styled.button`
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  background: ${({ $active }) => ($active ? "#E9FBF1" : "#fff")};
-  color: ${({ theme, $active }) => ($active ? theme.colors.primary : theme.colors.muted)};
-  border-radius: ${({ theme }) => theme.radius.pill};
-  padding: 8px 12px;
+  flex: 1;
+  border: none;
+  background: ${({ $active }) => ($active ? "white" : "transparent")};
+  color: ${({ theme, $active }) => ($active ? theme.colors.text : theme.colors.muted)};
+  padding: 16px;
   font-weight: 900;
+  font-size: 14px;
   cursor: pointer;
+  border-bottom: 2px solid ${({ theme, $active }) => ($active ? theme.colors.primary : "transparent")};
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.text};
+  }
 `;
 
 const PanelBody = styled.div`
-  padding: 16px;
+  padding: 24px;
 `;
 
 const Table = styled.div`
   display: grid;
-  gap: 10px;
+  gap: 16px;
 `;
 
 const Row = styled.div`
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radius.lg};
-  padding: 12px;
+  padding: 16px 20px;
   display: grid;
-  grid-template-columns: 1.35fr 0.6fr 0.75fr 0.75fr 0.7fr;
-  gap: 10px;
+  grid-template-columns: 2fr 0.8fr 1fr 1fr auto;
+  gap: 16px;
   align-items: center;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    box-shadow: ${({ theme }) => theme.shadow.sm};
+    border-color: #cbd5e1;
+  }
 
   @media (max-width: 980px) {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 `;
 
 const TitleCol = styled.div`
-  display: grid;
-  gap: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+`;
+
+const ItemTitleRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 `;
 
 const ItemTitle = styled.div`
   font-weight: 900;
+  font-size: 16px;
+  color: ${({ theme }) => theme.colors.text};
 `;
 
 const ItemSub = styled.div`
-  font-size: 12px;
+  font-size: 13px;
   color: ${({ theme }) => theme.colors.muted};
-  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 `;
 
 const Small = styled.div`
   font-size: 12px;
   color: ${({ theme }) => theme.colors.muted};
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 
   strong {
     color: ${({ theme }) => theme.colors.text};
+    font-size: 15px;
+  }
+
+  @media (max-width: 980px) {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
   }
 `;
 
 const Badge = styled.span`
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 7px 10px;
+  gap: 6px;
+  padding: 4px 10px;
   border-radius: ${({ theme }) => theme.radius.pill};
-  border: 1px solid ${({ theme }) => theme.colors.border};
   font-weight: 900;
-  font-size: 12px;
-  width: fit-content;
-  background: ${({ $type }) => {
-    if ($type === "available") return "#E9FBF1";
-    if ($type === "pending") return "#FFF7E6";
-    if ($type === "accepted") return "#EAF3FF";
-    return "#F1F5F9";
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: ${({ $type, theme }) => {
+    if ($type === "available") return "#eafff1";
+    if ($type === "pending") return "#fef3c7";
+    if ($type === "accepted") return "#eaf3ff";
+    return "#f1f5f9";
   }};
+  color: ${({ $type }) => {
+    if ($type === "available") return "#166534";
+    if ($type === "pending") return "#92400e";
+    if ($type === "accepted") return "#1e40af";
+    return "#475569";
+  }};
+
+  svg { font-size: 12px; }
 `;
 
 const Actions = styled.div`
   display: flex;
-  gap: 8px;
+  gap: 10px;
   justify-content: flex-end;
 
   @media (max-width: 980px) {
     justify-content: flex-start;
-  }
-`;
-
-const Btn = styled.button`
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  background: #fff;
-  padding: 10px 12px;
-  border-radius: ${({ theme }) => theme.radius.md};
-  font-weight: 900;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 1px dashed ${({ theme }) => theme.colors.border};
   }
 `;
 
 const LinkBtn = styled(Link)`
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  background: #fff;
-  padding: 10px 12px;
+  border: 1px solid ${({ theme }) => theme.colors.primary};
+  background: white;
+  color: ${({ theme }) => theme.colors.primary};
+  padding: 10px 16px;
   border-radius: ${({ theme }) => theme.radius.md};
   font-weight: 900;
+  font-size: 13px;
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #eafff1;
+  }
 `;
 
 const Empty = styled.div`
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
   border: 1px dashed ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radius.lg};
-  padding: 16px;
-  color: ${({ theme }) => theme.colors.muted};
-  font-size: 13px;
-  line-height: 1.6;
+  
+  svg {
+    font-size: 40px;
+    color: #cbd5e1;
+    margin-bottom: 16px;
+  }
+  
+  h3 { margin: 0 0 8px; color: ${({ theme }) => theme.colors.text}; }
+  p { margin: 0 auto; color: ${({ theme }) => theme.colors.muted}; font-size: 14px; max-width: 400px; }
 `;
 
 export default function RecyclerPortal() {
   const [tab, setTab] = useState("all");
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMarketplace = async () => {
@@ -269,32 +301,22 @@ export default function RecyclerPortal() {
   }, []);
 
   const rows = useMemo(() => {
-  if (tab === "all") return listings;
-  return listings.filter((x) => x.status == tab);
+    if (tab === "all") return listings;
+    return listings.filter((x) => x.status == tab);
   }, [tab, listings]);
 
   const stats = useMemo(() => {
     const base = listings.length;
     const available = listings.filter((x) => x.status === "available").length;
     const pending = listings.filter((x) => x.status === "pending").length;
-    const accepted = pending;
+    const accepted = pending; // Pending implies accepted by a recycler in this logic
     return { base, available, pending, accepted };
   }, [listings]);
-
-  const acceptListing = (id) => {
-    navigate(`/listings/${id}`);
-  };
 
   const statusIcon = (status) => {
     if (status === "available") return <FiCheckCircle />;
     if (status === "pending") return <FiClock />;
     return <FiLayers />;
-  };
-
-  const statusText = (status) => {
-    if (status === "available") return "Available";
-    if (status === "pending") return "Pending/Accepted";
-    return "All";
   };
 
   if (loading) return <Page><Header><Container><Title>Loading Portal...</Title></Container></Header></Page>;
@@ -303,12 +325,8 @@ export default function RecyclerPortal() {
     <Page>
       <Header>
         <Container>
-          <HeadRow>
-            <div>
-              <Title>Recycler Portal</Title>
-              <Sub>Browse listings, accept materials, and manage pickups from sellers across Nigeria.</Sub>
-            </div>
-          </HeadRow>
+          <Title>Recycler Portal</Title>
+          <Sub>Browse listings, accept materials, and manage pickups from sellers across Nigeria.</Sub>
         </Container>
       </Header>
 
@@ -316,131 +334,95 @@ export default function RecyclerPortal() {
         <Container>
           <StatsGrid>
             <StatCard>
-              <StatTop>
-                <div>
-                  <StatLabel>Total Listings</StatLabel>
-                  <StatValue>{stats.base}</StatValue>
-                </div>
-                <StatIcon $tone="#EAF3FF">
-                  <FiLayers />
-                </StatIcon>
-              </StatTop>
+              <StatIcon $tone="#f1f5f9" style={{ color: '#475569' }}><FiLayers /></StatIcon>
+              <StatData>
+                <StatLabel>Total Manifests</StatLabel>
+                <StatValue>{stats.base}</StatValue>
+              </StatData>
             </StatCard>
 
             <StatCard>
-              <StatTop>
-                <div>
-                  <StatLabel>Available</StatLabel>
-                  <StatValue>{stats.available}</StatValue>
-                </div>
-                <StatIcon $tone="#E9FBF1">
-                  <FiCheckCircle />
-                </StatIcon>
-              </StatTop>
+              <StatIcon $tone="#eafff1" style={{ color: '#0a9b47' }}><FiCheckCircle /></StatIcon>
+              <StatData>
+                <StatLabel>Available</StatLabel>
+                <StatValue>{stats.available}</StatValue>
+              </StatData>
             </StatCard>
 
             <StatCard>
-              <StatTop>
-                <div>
-                  <StatLabel>Pending</StatLabel>
-                  <StatValue>{stats.pending}</StatValue>
-                </div>
-                <StatIcon $tone="#FFF7E6">
-                  <FiClock />
-                </StatIcon>
-              </StatTop>
+              <StatIcon $tone="#fef3c7" style={{ color: '#d97706' }}><FiClock /></StatIcon>
+              <StatData>
+                <StatLabel>In Transit</StatLabel>
+                <StatValue>{stats.pending}</StatValue>
+              </StatData>
             </StatCard>
 
             <StatCard>
-              <StatTop>
-                <div>
-                  <StatLabel>Accepted</StatLabel>
-                  <StatValue>{stats.accepted}</StatValue>
-                </div>
-                <StatIcon $tone="#F2EDFF">
-                  <FiBox />
-                </StatIcon>
-              </StatTop>
+              <StatIcon $tone="#eaf3ff" style={{ color: '#2563eb' }}><FiBox /></StatIcon>
+              <StatData>
+                <StatLabel>Resolved</StatLabel>
+                <StatValue>{stats.accepted}</StatValue>
+              </StatData>
             </StatCard>
           </StatsGrid>
 
           <Panel>
-            <PanelHead>
-              <PanelTitle>Available Materials</PanelTitle>
-              <PanelSub>Switch tabs to focus on available, pending, or accepted items.</PanelSub>
-            </PanelHead>
-
             <Tabs>
               <Tab type="button" $active={tab === "all"} onClick={() => setTab("all")}>
-                All
+                All Manifests
               </Tab>
               <Tab type="button" $active={tab === "available"} onClick={() => setTab("available")}>
                 Available
               </Tab>
               <Tab type="button" $active={tab === "pending"} onClick={() => setTab("pending")}>
-                Pending
-              </Tab>
-              <Tab type="button" $active={tab === "accepted"} onClick={() => setTab("accepted")}>
-                Accepted
+                Pending / Accepted
               </Tab>
             </Tabs>
 
             <PanelBody>
               {rows.length === 0 ? (
-                <Empty>No items found in this tab.</Empty>
+                <Empty>
+                  <FiInbox />
+                  <h3>No Active Routing Data</h3>
+                  <p>There are no listings matching the "{tab}" status in the current marketplace pipeline.</p>
+                </Empty>
               ) : (
                 <Table>
                   {rows.map((x) => {
-                    const total = x.weightKg * x.pricePerKg;
-                    const isAccepted = x.status === "accepted";
+                    const total = x.weight_kg * x.price_per_kg;
 
                     return (
                       <Row key={x.id}>
                         <TitleCol>
-                          <ItemTitle>{x.title}</ItemTitle>
-                          <ItemSub>{x.location}</ItemSub>
+                          <ItemTitleRow>
+                            <ItemTitle>{x.title}</ItemTitle>
+                            <Badge $type={x.status}>
+                              {statusIcon(x.status)} {x.status}
+                            </Badge>
+                          </ItemTitleRow>
+                          <ItemSub>{x.location} • Listed by {x.seller_name}</ItemSub>
                         </TitleCol>
 
                         <Small>
-                          <strong>{x.weightKg}kg</strong>
-                          <div>Weight</div>
+                          <div>Verified Weight</div>
+                          <strong>{x.weight_kg} kg</strong>
                         </Small>
 
                         <Small>
-                          <strong>₦{x.pricePerKg}</strong>
-                          <div>Per kg</div>
+                          <div>Platform Rate</div>
+                          <strong>₦{x.price_per_kg} / kg</strong>
                         </Small>
 
                         <Small>
-                          <strong>₦{total.toLocaleString()}</strong>
-                          <div>Total</div>
+                          <div>Estimated Payout</div>
+                          <strong style={{ color: '#0a9b47' }}>₦{total.toLocaleString()}</strong>
                         </Small>
 
                         <Actions>
                           <LinkBtn to={`/listings/${x.id}`}>
-                            <FiEye /> View
+                            View Manifest <FiArrowRight />
                           </LinkBtn>
-
-                          <Btn type="button" onClick={() => acceptListing(x.id)} disabled={isAccepted || x.status === "pending"}>
-                            {isAccepted ? (
-                              <>
-                                <FiCheck /> Accepted
-                              </>
-                            ) : x.status === "pending" ? (
-                              <>
-                                <FiClock /> Pending
-                              </>
-                            ) : (
-                              <>
-                                <FiCheckCircle /> Accept
-                              </>
-                            )}
-                          </Btn>
                         </Actions>
-
-                        <Badge $type={x.status}>
-                          {statusIcon(x.status)} {statusText(x.status)}
-                        </Badge>
                       </Row>
                     );
                   })}

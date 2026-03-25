@@ -255,7 +255,7 @@ export default function Auth() {
       }
 
     } catch (err) {
-      setError(err.response?.data?.error || "Connection error. Ensure the backend server is running on port 3000.");
+      setError(err.response?.data?.error || "We're experiencing network difficulties. Please check your Internet access and try again.");
     } finally {
       setLoading(false);
     }

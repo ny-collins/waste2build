@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import styled from "styled-components";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-import { FiPlus, FiTrendingUp, FiCheckCircle, FiClock } from "react-icons/fi";
+import { FiPlus, FiTrendingUp, FiCheckCircle, FiClock, FiInbox } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import ListingCard from "../components/ListingCard";
 
@@ -38,6 +38,7 @@ const ActionBtn = styled(Link)`
   &:hover {
     background: ${({ theme }) => theme.colors.primaryDark};
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(10, 155, 71, 0.2);
   }
 `;
 
@@ -60,6 +61,12 @@ const StatCard = styled.div`
   display: flex;
   align-items: center;
   gap: 16px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: ${({ theme }) => theme.shadow.sm};
+  }
 
   svg {
     font-size: 32px;
@@ -106,8 +113,34 @@ const EmptyState = styled.div`
   border: 1px dashed ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radius.lg};
   
+  svg {
+    font-size: 40px;
+    color: #cbd5e1;
+    margin-bottom: 16px;
+  }
+  
   h3 { margin: 0 0 8px; color: ${({ theme }) => theme.colors.text}; }
-  p { margin: 0; color: ${({ theme }) => theme.colors.muted}; font-size: 14px; }
+  p { margin: 0 auto 20px; color: ${({ theme }) => theme.colors.muted}; font-size: 14px; max-width: 400px; }
+`;
+
+const ManageBtn = styled(Link)`
+  background: white;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  color: ${({ theme }) => theme.colors.text};
+  padding: 10px 16px;
+  border-radius: ${({ theme }) => theme.radius.md};
+  font-weight: 700;
+  font-size: 13px;
+  text-decoration: none;
+  transition: all ${({ theme }) => theme.transitions.fast};
+  text-align: center;
+  width: 100%;
+
+  &:hover {
+    border-color: ${({ theme }) => theme.colors.primary};
+    color: ${({ theme }) => theme.colors.primary};
+    background: ${({ theme }) => theme.colors.bg};
+  }
 `;
 
 export default function SellerDashboard() {
@@ -172,8 +205,12 @@ export default function SellerDashboard() {
         <p>Compiling manifest data...</p>
       ) : myListings.length === 0 ? (
         <EmptyState>
+          <FiInbox />
           <h3>No Active Manifests</h3>
-          <p>Initialize your first material listing to begin routing logistics.</p>
+          <p>Initialize your first material listing to begin routing logistics to our recycler network.</p>
+          <ActionBtn to="/seller/create-listing" style={{ display: 'inline-flex', width: 'fit-content' }}>
+            <FiPlus /> Create Listing
+          </ActionBtn>
         </EmptyState>
       ) : (
         <Grid>
@@ -182,9 +219,7 @@ export default function SellerDashboard() {
               key={listing.id} 
               listing={listing} 
               actions={
-                <Link to={`/listings/${listing.id}`} style={{ fontSize: '12px', fontWeight: 'bold', textDecoration: 'none', color: '#64748b', padding: '10px' }}>
-                  Manage
-                </Link>
+                <ManageBtn to={`/listings/${listing.id}`}>Manage Manifest</ManageBtn>
               }
             />
           ))}

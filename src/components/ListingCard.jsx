@@ -73,7 +73,7 @@ const MetaRow = styled.div`
 `;
 
 const CategoryBadge = styled.span`
-  background: ${({ theme }) => theme.colors.tags.blue};
+  background: #eaf3ff;
   color: #1e40af;
   padding: 4px 10px;
   border-radius: ${({ theme }) => theme.radius.pill};
@@ -155,14 +155,25 @@ const ActionWrapper = styled.div`
 
 export default function ListingCard({ listing, actions }) {
   const totalValue = (listing.weight_kg * listing.price_per_kg).toLocaleString();
-  
-  const hasImages = listing.images && listing.images.length > 0;
+
+  let imageUrls = [];
+  if (typeof listing.images === 'string') {
+    try {
+      imageUrls = JSON.parse(listing.images);
+    } catch (err) {
+      imageUrls = [];
+    }
+  } else if (Array.isArray(listing.images)) {
+    imageUrls = listing.images;
+  }
+
+  const hasImages = imageUrls.length > 0;
 
   return (
     <Card>
       <CoverWrap>
         {hasImages ? (
-          <CoverImage src={listing.images[0]} alt={listing.title} loading="lazy" />
+          <CoverImage src={imageUrls[0]} alt={listing.title} loading="lazy" />
         ) : (
           <Placeholder>
             <FiImage />

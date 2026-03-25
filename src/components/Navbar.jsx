@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { FiLogOut, FiUser, FiMenu, FiX } from "react-icons/fi";
@@ -93,7 +93,6 @@ const Nav = styled.nav`
     box-shadow: ${({ theme }) => theme.shadow.md};
     gap: 12px;
     
-    /* Dynamic visibility based on prop */
     display: ${({ $isOpen }) => ($isOpen ? "flex" : "none")};
     
     a {
@@ -148,11 +147,34 @@ export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const navRef = useRef(null);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (isOpen && navRef.current && !navRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    const handleEscapeKey = (event) => {
+      if (isOpen && event.key === 'Escape') {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("keydown", handleEscapeKey);
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("keydown", handleEscapeKey);
+    };
+  }, [isOpen]);
 
   const handleLogout = () => {
     logout();
@@ -160,14 +182,14 @@ export default function Navbar() {
   };
 
   return (
-    <Bar>
+    <Bar ref={navRef}>
       <Inner>
         <BrandLink to="/">
           <BrandLogo src="/favicon.svg" alt="Waste2Build Logo" />
           <BrandText>WASTE2BUILD</BrandText>
         </BrandLink>
 
-        <MobileToggle onClick={() => setIsOpen(!isOpen)} aria-label="Toggle Menu">
+        <MobileToggle onClick={() => setIsOpen(!isOpen)} aria-expanded={isOpen} aria-label="Toggle Menu">
           {isOpen ? <FiX /> : <FiMenu />}
         </MobileToggle>
 
@@ -179,7 +201,10 @@ export default function Navbar() {
           {user ? (
             <>
               {user.role === "seller" ? (
-                <NavLink to="/seller/dashboard">My Dashboard</NavLink>
+                <>
+                  <NavLink to="/seller/dashboard">My Dashboard</NavLink>
+                  <NavLink to="/rewards">Rewards Ledger</NavLink>
+                </>
               ) : (
                 <NavLink to="/recycler/portal">Recycler Portal</NavLink>
               )}

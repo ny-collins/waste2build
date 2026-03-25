@@ -202,10 +202,12 @@ const InputWrap = styled.div`
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radius.md};
   padding: 12px 12px;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
   &:focus-within {
     border-color: ${({ theme }) => theme.colors.primary};
+    background: white;
+    box-shadow: 0 0 0 3px rgba(10, 155, 71, 0.1);
   }
 
   select,

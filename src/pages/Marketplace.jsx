@@ -2,13 +2,14 @@ import { useState, useEffect } from "react";
 import styled from "styled-components";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import { FiFilter, FiSearch } from "react-icons/fi";
+import { FiFilter, FiSearch, FiInbox } from "react-icons/fi";
 import ListingCard from "../components/ListingCard";
 
 const Page = styled.div`
   padding: 40px 18px;
   max-width: ${({ theme }) => theme.container};
   margin: 0 auto;
+  min-height: 60vh;
 `;
 
 const Header = styled.div`
@@ -55,6 +56,7 @@ const SelectWrap = styled.div`
     font-family: inherit;
     font-weight: inherit;
     color: ${({ theme }) => theme.colors.text};
+    cursor: pointer;
   }
 `;
 
@@ -73,11 +75,59 @@ const ViewButton = styled(Link)`
   font-weight: 700;
   font-size: 13px;
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: all ${({ theme }) => theme.transitions.fast};
+  text-align: center;
+  width: 100%;
 
   &:hover {
     border-color: ${({ theme }) => theme.colors.primary};
     color: ${({ theme }) => theme.colors.primary};
+    background: ${({ theme }) => theme.colors.bg};
+  }
+`;
+
+const EmptyState = styled.div`
+  text-align: center;
+  padding: 80px 20px;
+  background: white;
+  border: 1px dashed ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radius.lg};
+  color: ${({ theme }) => theme.colors.muted};
+
+  svg {
+    font-size: 48px;
+    color: #cbd5e1;
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    margin: 0 0 8px;
+    color: ${({ theme }) => theme.colors.text};
+    font-size: 20px;
+  }
+
+  p {
+    margin: 0 auto 20px;
+    font-size: 14px;
+    line-height: 1.6;
+    max-width: 450px;
+  }
+`;
+
+const ActionLink = styled(Link)`
+  display: inline-flex;
+  background: ${({ theme }) => theme.colors.primary};
+  color: white;
+  padding: 10px 20px;
+  border-radius: ${({ theme }) => theme.radius.md};
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+  transition: all ${({ theme }) => theme.transitions.fast};
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.primaryDark};
+    transform: translateY(-2px);
   }
 `;
 
@@ -129,6 +179,15 @@ export default function Marketplace() {
 
       {loading ? (
         <p>Synchronizing market data...</p>
+      ) : filteredListings.length === 0 ? (
+        <EmptyState>
+          <FiInbox />
+          <h3>No Materials Available</h3>
+          <p>
+            The marketplace is currently waiting on new inventory. If you have recyclable waste, you can be the first to list it!
+          </p>
+          <ActionLink to="/auth">Become a Seller</ActionLink>
+        </EmptyState>
       ) : (
         <Grid>
           {filteredListings.map(listing => (
